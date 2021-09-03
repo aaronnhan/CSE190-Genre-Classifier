@@ -31,7 +31,7 @@ def create_data(n_mels):
         for file in files:
             print(file)
             spec = create_spectrogram(os.path.join(subdir, file), n_mels)
-            spec = np.delete(spec, slice(20,spec.shape[1]), 1)
+            spec = np.delete(spec, slice(30,spec.shape[1]), 1)
             spectrograms.append(spec)
             labels.append(genre_dict[file.split(".")[0]])
     return [np.array(spectrograms), np.array(labels)]
@@ -41,7 +41,7 @@ def generate_train_test(n_mels):
     return train_test_split(spectrograms, labels, test_size=0.33)
 
 
-X_train, X_test, y_train, y_test = generate_train_test(20)
+X_train, X_test, y_train, y_test = generate_train_test(30)
 
 def trainModel(model, epochs, optimizer):
     model.compile(optimizer = optimizer,
@@ -50,11 +50,11 @@ def trainModel(model, epochs, optimizer):
     return model.fit(X_train, y_train, validation_data = (X_test, y_test), epochs = epochs,
                      batch_size = 128)
 
-X_train = X_train.reshape(669,20,20,1)
-X_test = X_test.reshape(330,20,20,1)
+X_train = X_train.reshape(669,30,30,1)
+X_test = X_test.reshape(330,30,30,1)
 
 model= Sequential()
-model.add(Conv2D(64, kernel_size=3, activation='relu', input_shape=(20, 20, 1)))
+model.add(Conv2D(64, kernel_size=3, activation='relu', input_shape=(30, 30, 1)))
 model.add(Dropout(0.2))
 model.add(AveragePooling2D(pool_size = (2,2)))
 model.add(Conv2D(32, kernel_size=3, activation='relu'))
@@ -64,6 +64,8 @@ model.add(Conv2D(16, kernel_size=3, activation='relu'))
 model.add(Dropout(0.2))
 model.add(Flatten())
 model.add(Dense(10, activation='softmax'))
+
+print(model.summary())
 
 model_history = trainModel(model = model, epochs = 500, optimizer = 'adam')
 
