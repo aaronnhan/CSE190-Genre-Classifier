@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import os
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten, Dropout
+from keras.layers import Dense, Conv2D, Flatten, Dropout, AveragePooling2D
 
 def create_spectrogram(filename, n_mels):
     audio_series, sampling_rate = librosa.load(filename)
@@ -56,14 +56,16 @@ X_test = X_test.reshape(330,20,20,1)
 model= Sequential()
 model.add(Conv2D(64, kernel_size=3, activation='relu', input_shape=(20, 20, 1)))
 model.add(Dropout(0.2))
+model.add(AveragePooling2D(pool_size = (2,2)))
 model.add(Conv2D(32, kernel_size=3, activation='relu'))
 model.add(Dropout(0.2))
+model.add(AveragePooling2D(pool_size = (2,2)))
 model.add(Conv2D(16, kernel_size=3, activation='relu'))
 model.add(Dropout(0.2))
 model.add(Flatten())
 model.add(Dense(10, activation='softmax'))
 
-model_history = trainModel(model = model, epochs = 120, optimizer = 'adam')
+model_history = trainModel(model = model, epochs = 500, optimizer = 'adam')
 
 test_loss, test_acc = model.evaluate(X_test, y_test, batch_size = 128)
 print("Test loss: ", test_loss)
